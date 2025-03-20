@@ -3,16 +3,15 @@ import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { CheckIcon, ChevronDown, Clock, Send, Users } from "lucide-react";
+import { ChevronDown, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define the form schema with validation rules
 const formSchema = z.object({
@@ -21,10 +20,8 @@ const formSchema = z.object({
   visitDuration: z.string().min(1, { message: "Укажите планируемое время пребывания" }),
   recipient: z.string({ required_error: "Выберите получателя" }),
   roomNumber: z.string().min(1, { message: "Укажите номер кабинета" }),
+  responsibility: z.string().optional(),
 });
-
-// Type for form values
-type FormValues = z.infer<typeof formSchema>;
 
 // The available recipients for the dropdown
 const recipients = [
@@ -39,7 +36,7 @@ export default function VisitorForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Initialize the form with default values
-  const form = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
@@ -47,11 +44,12 @@ export default function VisitorForm() {
       visitDuration: "",
       recipient: "",
       roomNumber: "",
+      responsibility: "",
     },
   });
 
   // Submit handler for the form
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     
     // Simulate API call
@@ -71,153 +69,180 @@ export default function VisitorForm() {
     setIsSubmitting(false);
   };
 
+  const renderRequiredLabel = (label: string) => (
+    <div className="flex">
+      {label} <span className="text-red-500 ml-0.5">*</span>
+    </div>
+  );
+
   return (
-    <div className="form-container max-w-lg w-full mx-auto">
-      <Card className="border border-border/40 shadow-elevation bg-card/80 backdrop-blur-sm">
-        <CardHeader className="space-y-1 pb-6">
-          <div className="flex justify-center mb-2">
-            <Badge className="bg-accent text-accent-foreground font-normal px-3 py-1" variant="secondary">
-              Регистрация
-            </Badge>
+    <div className="form-container w-full">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-0">
+          {/* Full Name Field */}
+          <div className="bg-white shadow-sm rounded-none border-t border-x border-gray-200 p-6">
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  {renderRequiredLabel("ФИО Посетителя")}
+                  <FormControl>
+                    <Input 
+                      placeholder="Мой ответ" 
+                      {...field} 
+                      className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
           </div>
-          <CardTitle className="text-2xl font-medium text-center">Форма посетителя</CardTitle>
-          <CardDescription className="text-center text-muted-foreground">
-            Заполните информацию для посещения
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium">ФИО Посетителя</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Введите ваше полное имя" 
-                        {...field} 
-                        className="h-10 input-field"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name="organization"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium">Из какой организации?</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Укажите вашу организацию" 
-                        {...field} 
-                        className="h-10 input-field"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Organization Field */}
+          <div className="bg-white shadow-sm border-t border-x border-gray-200 p-6">
+            <FormField
+              control={form.control}
+              name="organization"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  {renderRequiredLabel("Из какой организации?")}
+                  <FormControl>
+                    <Input 
+                      placeholder="Мой ответ" 
+                      {...field} 
+                      className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
 
-              <FormField
-                control={form.control}
-                name="visitDuration"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium">Время пребывания</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input 
-                          placeholder="Например: 1 час, 09:00-10:30" 
-                          {...field} 
-                          className="h-10 pl-10 input-field"
-                        />
-                        <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Visit Duration Field */}
+          <div className="bg-white shadow-sm border-t border-x border-gray-200 p-6">
+            <FormField
+              control={form.control}
+              name="visitDuration"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  {renderRequiredLabel("Время пребывания")}
+                  <FormControl>
+                    <Input 
+                      placeholder="Мой ответ" 
+                      {...field} 
+                      className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
 
-              <FormField
-                control={form.control}
-                name="recipient"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium">Кому?</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-10 input-field">
-                          <SelectValue placeholder="Выберите получателя" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-popover/95 backdrop-blur-sm border border-border/60">
+          {/* Recipient Field */}
+          <div className="bg-white shadow-sm border-t border-x border-gray-200 p-6">
+            <FormField
+              control={form.control}
+              name="recipient"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  {renderRequiredLabel("Кому?")}
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0">
+                        <SelectValue placeholder="Выбрать" />
+                      </SelectTrigger>
+                      <SelectContent>
                         {recipients.map((recipient) => (
                           <SelectItem 
                             key={recipient.id} 
                             value={recipient.id}
-                            className="focus:bg-accent/50 cursor-pointer"
                           >
                             {recipient.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
 
-              <FormField
-                control={form.control}
-                name="roomNumber"
-                render={({ field }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-sm font-medium">Кабинет №</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Укажите номер кабинета" 
-                        {...field} 
-                        className="h-10 input-field"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Room Number Field */}
+          <div className="bg-white shadow-sm border-t border-x border-gray-200 p-6">
+            <FormField
+              control={form.control}
+              name="roomNumber"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  {renderRequiredLabel("Кабинет №")}
+                  <FormControl>
+                    <Input 
+                      placeholder="Мой ответ" 
+                      {...field} 
+                      className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-11 mt-6 font-medium rounded-md transition-all duration-300 bg-primary hover:bg-primary/90 hover:shadow-md"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin"></div>
-                    <span>Отправка...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Send size={16} />
-                    <span>Отправить охраннику</span>
-                  </div>
-                )}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center pt-2 pb-6 px-8 text-xs text-muted-foreground">
-          <p className="text-center">
-            Нажимая кнопку "Отправить", вы принимаете ответственность за предоставленную информацию
-          </p>
-        </CardFooter>
-      </Card>
+          {/* Responsibility Field */}
+          <div className="bg-white shadow-sm border border-gray-200 rounded-b-lg p-6">
+            <FormField
+              control={form.control}
+              name="responsibility"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <div className="text-base font-normal">Под ответственность</div>
+                  <FormControl>
+                    <Input 
+                      placeholder="Мой ответ" 
+                      {...field} 
+                      className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex justify-between pt-4">
+            <Button 
+              type="submit" 
+              className="bg-[#673AB7] hover:bg-[#5E35B1] text-white rounded-md px-4"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                  <span>Отправка...</span>
+                </div>
+              ) : (
+                "Отправить"
+              )}
+            </Button>
+            
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="text-[#673AB7] border-gray-300 hover:bg-[#f6f0ff]"
+              onClick={() => form.reset()}
+            >
+              Очистить форму
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }
