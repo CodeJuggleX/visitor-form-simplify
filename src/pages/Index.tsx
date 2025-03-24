@@ -1,5 +1,5 @@
 
-import VisitorForm from "@/components/VisitorForm";
+import MaterialVisitorForm from "@/components/MaterialVisitorForm";
 
 const Index = () => {
   return (
@@ -15,7 +15,7 @@ const Index = () => {
         </div>
         
         <div className="w-full">
-          <VisitorForm />
+          <MaterialVisitorForm />
         </div>
       </div>
     </div>
