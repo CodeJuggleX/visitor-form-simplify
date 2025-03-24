@@ -16,7 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 // Define the form schema with validation rules
 const formSchema = z.object({
   fullName: z.string().min(3, { message: "ФИО должно содержать не менее 3 символов" }),
-  organization: z.string().min(2, { message: "Укажите вашу организацию" }),
+  organization: z.string().min(2, { message: "Укажите организацию посетителя" }),
+  visitPurpose: z.string().min(3, { message: "Укажите цель визита" }),
   visitDuration: z.string().min(1, { message: "Укажите планируемое время пребывания" }),
   recipient: z.string({ required_error: "Выберите получателя" }),
   roomNumber: z.string().min(1, { message: "Укажите номер кабинета" }),
@@ -41,6 +42,7 @@ export default function VisitorForm() {
     defaultValues: {
       fullName: "",
       organization: "",
+      visitPurpose: "",
       visitDuration: "",
       recipient: "",
       roomNumber: "",
@@ -56,8 +58,8 @@ export default function VisitorForm() {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     // Show success notification
-    toast.success("Форма отправлена успешно", {
-      description: "Информация о посещении передана охраннику",
+    toast.success("Информация успешно отправлена", {
+      description: "Данные о посетителе переданы охраннику",
       position: "top-center",
     });
     
@@ -89,7 +91,7 @@ export default function VisitorForm() {
                   {renderRequiredLabel("ФИО Посетителя")}
                   <FormControl>
                     <Input 
-                      placeholder="Мой ответ" 
+                      placeholder="Введите полное имя посетителя" 
                       {...field} 
                       className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
                     />
@@ -110,9 +112,30 @@ export default function VisitorForm() {
                   {renderRequiredLabel("Из какой организации?")}
                   <FormControl>
                     <Input 
-                      placeholder="Мой ответ" 
+                      placeholder="Укажите организацию посетителя" 
                       {...field} 
                       className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Visit Purpose Field - NEW */}
+          <div className="bg-white shadow-sm border-t border-x border-gray-200 p-6">
+            <FormField
+              control={form.control}
+              name="visitPurpose"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  {renderRequiredLabel("Цель визита")}
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Укажите цель визита" 
+                      {...field} 
+                      className="min-h-24 border-b border-gray-300 shadow-none rounded-none px-0 pt-2 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0 resize-none"
                     />
                   </FormControl>
                   <FormMessage className="text-xs" />
@@ -131,7 +154,7 @@ export default function VisitorForm() {
                   {renderRequiredLabel("Время пребывания")}
                   <FormControl>
                     <Input 
-                      placeholder="Мой ответ" 
+                      placeholder="Укажите планируемое время пребывания" 
                       {...field} 
                       className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
                     />
@@ -153,7 +176,7 @@ export default function VisitorForm() {
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder="Выбрать" />
+                        <SelectValue placeholder="Выберите сотрудника" />
                       </SelectTrigger>
                       <SelectContent>
                         {recipients.map((recipient) => (
@@ -183,7 +206,7 @@ export default function VisitorForm() {
                   {renderRequiredLabel("Кабинет №")}
                   <FormControl>
                     <Input 
-                      placeholder="Мой ответ" 
+                      placeholder="Укажите номер кабинета" 
                       {...field} 
                       className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
                     />
@@ -204,7 +227,7 @@ export default function VisitorForm() {
                   <div className="text-base font-normal">Под ответственность</div>
                   <FormControl>
                     <Input 
-                      placeholder="Мой ответ" 
+                      placeholder="Укажите ответственное лицо (необязательно)" 
                       {...field} 
                       className="border-b border-gray-300 shadow-none rounded-none px-0 h-9 focus:border-[#673AB7] focus:ring-0 focus:ring-offset-0"
                     />
@@ -228,7 +251,7 @@ export default function VisitorForm() {
                   <span>Отправка...</span>
                 </div>
               ) : (
-                "Отправить"
+                "Отправить охраннику"
               )}
             </Button>
             
